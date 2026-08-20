@@ -1,0 +1,686 @@
+<!DOCTYPE html>
+<html lang="en" class="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Political Octagon</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+    tailwind.config = {
+        darkMode: 'class',
+        theme: {
+            extend: {
+                colors: {
+                    accent: {
+                        DEFAULT: 'var(--color-accent)',
+                        hover: 'var(--color-accent-hover)',
+                        light: 'var(--color-accent-light)',
+                    }
+                }
+            }
+        }
+    }
+</script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+    --color-accent: #0f172a;
+    --color-accent-hover: #262626;
+    --color-accent-light: #f5f5f5;
+}
+
+body {
+    font-family: 'Inter', sans-serif;
+    transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.fade-in {
+    animation: fadeIn 0.4s ease forwards;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(6px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* Easy Reader Mode styles */
+body.reader-mode {
+    font-size: 1.2rem !important;
+    line-height: 1.8 !important;
+}
+body.reader-mode h1, body.reader-mode h2, body.reader-mode h3 {
+    letter-spacing: normal !important;
+}
+
+.user-polygon {
+    transition: all 1s ease;
+}
+
+/* Dedicated Easy Reader Mode */
+body.reader-mode .reader-only { display: block !important; }
+body.reader-mode #quiz-screen { max-width: 48rem; }
+body.reader-mode #question-text { font-size: 1.45rem; line-height: 1.7; min-height: 9rem; }
+body.reader-mode .option-btn { font-size: 1.08rem; padding-top: .9rem; padding-bottom: .9rem; }
+.reader-only { display: none; }
+.history-card { background: #fff; border: 1px solid #e5e7eb; border-radius: .75rem; padding: 1rem; }
+.dark .history-card { background: #000; border-color: #262626; }
+</style>
+</head>
+<body class="w-full min-h-screen flex flex-col bg-slate-50 text-slate-900 dark:bg-black dark:text-white">
+
+<header class="w-full bg-white dark:bg-black border-b border-slate-200 dark:border-neutral-800 px-6 py-4 flex justify-between items-center sticky top-0 z-40">
+    <div>
+        <h1 class="text-xl md:text-2xl font-bold tracking-tight">The Political Octagon</h1>
+        <p class="text-xs md:text-sm text-slate-500 dark:text-neutral-400 font-medium">COMPREHENSIVE IDEOLOGICAL ASSESSMENT</p>
+    </div>
+    <div class="flex items-center gap-3">
+        <button onclick="toggleModal('settings-modal')" class="text-sm font-medium bg-white dark:bg-neutral-950 hover:bg-slate-100 dark:hover:bg-neutral-900 text-slate-700 dark:text-neutral-100 py-2 px-4 rounded border border-slate-200 dark:border-neutral-700 shadow-sm flex items-center gap-2">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+            Settings
+        </button>
+        <button onclick="toggleModal('manual-modal')" class="text-sm font-medium bg-white dark:bg-neutral-950 hover:bg-slate-100 dark:hover:bg-neutral-900 text-slate-700 dark:text-neutral-100 py-2 px-4 rounded border border-slate-200 dark:border-neutral-700 shadow-sm hidden sm:block">
+            Manual
+        </button>
+    </div>
+</header>
+
+<div id="settings-modal" class="fixed inset-0 z-50 hidden flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm opacity-0 transition-opacity duration-200">
+    <div class="bg-white dark:bg-black rounded-lg shadow-xl w-full max-w-md border border-slate-200 dark:border-neutral-800 transform scale-95 transition-transform duration-200" id="settings-content">
+        <div class="p-6 border-b border-slate-100 dark:border-neutral-800 flex justify-between items-center">
+            <h2 class="text-lg font-bold">Preferences & Settings</h2>
+            <button onclick="toggleModal('settings-modal')" class="text-slate-400 hover:text-slate-700 dark:hover:text-white text-xl font-light">&times;</button>
+        </div>
+        <div class="p-6 space-y-6 text-sm">
+            <!-- Dark Mode Toggle -->
+            <div class="flex items-center justify-between">
+                <div>
+                    <span class="font-medium block">Dark Mode</span>
+                    <span class="text-xs text-slate-500 dark:text-neutral-400">Switch between light and dark display</span>
+                </div>
+                <button onclick="toggleDarkMode()" id="dark-mode-btn" class="px-4 py-2 bg-slate-100 dark:bg-neutral-950 hover:bg-slate-200 dark:hover:bg-neutral-900 font-medium rounded border border-slate-200 dark:border-neutral-700">
+                    Enable Dark
+                </button>
+            </div>            <!-- Reader Mode is controlled from the homepage -->
+            <div class="border-t border-slate-100 dark:border-neutral-900 pt-4">
+                <span class="font-medium block">Easy Reader Mode</span>
+                <span class="text-xs text-slate-500 dark:text-neutral-400">Use the Easy Reader switch on the homepage to simplify questions and enlarge text.</span>
+            </div>
+
+            <!-- Accent Color Picker -->
+            <div class="border-t border-slate-100 dark:border-neutral-900 pt-4">
+                <span class="font-medium block mb-2">Accent Theme</span>
+                <div class="flex gap-3">
+                    <button onclick="setAccentColor('#000000', '#262626', '#f5f5f5')" class="w-8 h-8 rounded-full bg-black border-2 border-white dark:border-neutral-700 shadow-sm" aria-label="Black accent"></button>
+                    <button onclick="setAccentColor('#333333', '#444444', '#f1f1f1')" class="w-8 h-8 rounded-full bg-neutral-700 border-2 border-white dark:border-neutral-700 shadow-sm" aria-label="Dark gray accent"></button>
+                    <button onclick="setAccentColor('#666666', '#777777', '#eaeaea')" class="w-8 h-8 rounded-full bg-neutral-500 border-2 border-white dark:border-neutral-700 shadow-sm" aria-label="Gray accent"></button>
+                    <button onclick="setAccentColor('#999999', '#888888', '#e0e0e0')" class="w-8 h-8 rounded-full bg-neutral-400 border-2 border-white dark:border-neutral-700 shadow-sm" aria-label="Light gray accent"></button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="manual-modal" class="fixed inset-0 z-50 hidden flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm opacity-0 transition-opacity duration-200">
+    <div class="bg-white dark:bg-black rounded-lg shadow-xl w-full max-w-2xl max-h-[85vh] overflow-y-auto border border-slate-200 dark:border-neutral-800 transform scale-95 transition-transform duration-200">
+        <div class="p-6 border-b border-slate-100 dark:border-neutral-800 flex justify-between items-center sticky top-0 bg-white dark:bg-black">
+            <h2 class="text-xl font-bold">Assessment Manual</h2>
+            <button onclick="toggleModal('manual-modal')" class="text-slate-400 hover:text-slate-700 dark:hover:text-white text-xl font-light">&times;</button>
+        </div>
+        <div class="p-6 space-y-4 text-slate-600 dark:text-neutral-300 leading-relaxed text-sm">
+            <p>The Political Octagon maps ideological alignment across four primary dimensions, generating an eight-point topology without artificial gradients or deceptive styling.</p>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2">
+                <div class="p-4 border border-slate-200 dark:border-neutral-800 rounded bg-slate-50 dark:bg-neutral-950/50">
+                    <strong class="text-slate-900 dark:text-white block mb-1">Economic Axis</strong>
+                    <p class="text-xs">Equality vs. Markets.</p>
+                </div>
+                <div class="p-4 border border-slate-200 dark:border-neutral-800 rounded bg-slate-50 dark:bg-neutral-950/50">
+                    <strong class="text-slate-900 dark:text-white block mb-1">State Axis</strong>
+                    <p class="text-xs">Authority vs. Liberty.</p>
+                </div>
+                <div class="p-4 border border-slate-200 dark:border-neutral-800 rounded bg-slate-50 dark:bg-neutral-950/50">
+                    <strong class="text-slate-900 dark:text-white block mb-1">Culture Axis</strong>
+                    <p class="text-xs">Progress vs. Tradition.</p>
+                </div>
+                <div class="p-4 border border-slate-200 dark:border-neutral-800 rounded bg-slate-50 dark:bg-neutral-950/50">
+                    <strong class="text-slate-900 dark:text-white block mb-1">Diplomacy Axis</strong>
+                    <p class="text-xs">Global vs. Nation.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<main class="flex-grow flex items-center justify-center p-6 md:p-12">
+    
+    <!-- Intro Screen -->
+    <div id="intro-screen" class="w-full max-w-3xl bg-white dark:bg-black border border-slate-200 dark:border-neutral-800 rounded-lg shadow-sm p-8 md:p-12 fade-in text-center">
+        <h2 class="text-3xl font-bold mb-4 tracking-tight">Determine Your Coordinates</h2>
+        <p class="text-slate-600 dark:text-neutral-400 text-sm md:text-base max-w-xl mx-auto mb-8 leading-relaxed">
+            Answer 40 balanced statements across 8 ideological directions. Each direction includes statements from contrasting policy perspectives. Strongly Agree on every statement results in 50 on every displayed stat.
+        </p>
+        <button onclick="startAssessment()" class="bg-accent hover:bg-accent-hover text-white font-medium py-3 px-8 rounded shadow transition-colors w-full max-w-xs">
+            Initiate Assessment
+        </button>
+
+        <div class="mt-8 grid grid-cols-1 md:grid-cols-2 gap-4 text-left">
+            <section class="rounded-lg border border-slate-200 dark:border-neutral-800 p-5 bg-slate-50 dark:bg-black">
+                <div class="flex items-center justify-between gap-4">
+                    <div>
+                        <h3 class="font-bold">Easy Reader Mode</h3>
+                        <p class="text-xs text-slate-500 dark:text-neutral-400 mt-1">Simpler wording, larger text, easier scanning.</p>
+                    </div>
+                    <button onclick="toggleReaderMode(); updateHomepageReaderButton();" id="home-reader-btn" class="shrink-0 px-4 py-2 bg-black text-white dark:bg-white dark:text-black rounded text-sm font-semibold">Enable</button>
+                </div>
+            </section>
+            <section class="rounded-lg border border-slate-200 dark:border-neutral-800 p-5 bg-slate-50 dark:bg-black">
+                <div>
+                    <h3 class="font-bold">Previous Results</h3>
+                    <p class="text-xs text-slate-500 dark:text-neutral-400 mt-1">Saved locally in this browser.</p>
+                </div>
+                <div id="homepage-result-history" class="mt-4 space-y-2 max-h-72 overflow-y-auto"></div>
+            </section>
+        </div>
+    </div>
+
+    <!-- Quiz Screen -->
+    <div id="quiz-screen" class="w-full max-w-2xl hidden fade-in">
+        <div class="bg-white dark:bg-black border border-slate-200 dark:border-neutral-800 rounded-lg shadow-sm p-8 relative">
+            <div class="w-full bg-slate-100 dark:bg-neutral-950 absolute top-0 left-0 h-1">
+                <div id="progress-bar" class="bg-accent h-1 transition-all duration-300" style="width: 0%"></div>
+            </div>
+            
+            <div class="flex justify-between items-center mb-6 mt-2">
+                <span id="question-counter" class="text-xs font-bold text-slate-400 tracking-wider uppercase">01 / 40</span>
+                <span id="axis-indicator" class="text-xs font-bold px-2.5 py-1 bg-slate-100 dark:bg-neutral-950 text-slate-600 dark:text-neutral-300 rounded uppercase">Axis</span>
+            </div>
+
+            <h2 id="question-text" class="text-xl md:text-2xl font-medium text-slate-800 dark:text-white leading-snug mb-8 min-h-[100px] flex items-center">
+                Loading data...
+            </h2>
+
+            <div class="space-y-2.5">
+                <button onclick="handleAnswer(2)" class="option-btn w-full text-left px-5 py-3 rounded font-medium bg-emerald-50 dark:bg-neutral-950 text-emerald-900 dark:text-white border border-emerald-200 dark:border-neutral-700 hover:bg-emerald-100 dark:hover:bg-neutral-900">Strongly Agree</button>
+                <button onclick="handleAnswer(1)" class="option-btn w-full text-left px-5 py-3 rounded font-medium bg-white dark:bg-neutral-950 text-slate-700 dark:text-neutral-100 border border-slate-200 dark:border-neutral-700 hover:bg-slate-50 dark:hover:bg-neutral-900/50">Agree</button>
+                <button onclick="handleAnswer(0)" class="option-btn w-full text-center px-5 py-2.5 rounded font-medium bg-slate-50 dark:bg-neutral-950/50 text-slate-500 dark:text-neutral-400 border border-slate-200 dark:border-neutral-700 text-sm hover:bg-slate-100 dark:hover:bg-neutral-900">Neutral / Unsure</button>
+                <button onclick="handleAnswer(-1)" class="option-btn w-full text-left px-5 py-3 rounded font-medium bg-white dark:bg-neutral-950 text-slate-700 dark:text-neutral-100 border border-slate-200 dark:border-neutral-700 hover:bg-slate-50 dark:hover:bg-neutral-900/50">Disagree</button>
+                <button onclick="handleAnswer(-2)" class="option-btn w-full text-left px-5 py-3 rounded font-medium bg-rose-50 dark:bg-neutral-950 text-rose-900 dark:text-white border border-rose-200 dark:border-neutral-700 hover:bg-rose-100 dark:hover:bg-neutral-900">Strongly Disagree</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Results Screen -->
+    <div id="results-screen" class="w-full max-w-6xl hidden fade-in">
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
+            
+            <!-- SVG Map Card -->
+            <div id="compass-export-card" class="bg-white dark:bg-black border border-slate-200 dark:border-neutral-800 rounded-lg shadow-sm p-6 md:p-8 flex flex-col items-center justify-center relative">
+                <div class="w-full flex justify-between items-center mb-6">
+                    <h3 class="text-base font-bold text-slate-800 dark:text-white">Topological Map</h3>
+                    <button onclick="downloadCompass()" class="text-xs font-semibold bg-accent text-white py-2 px-3 rounded hover:bg-accent-hover transition-colors flex items-center gap-1.5 shadow-sm">
+                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
+                        Download Compass
+                    </button>
+                </div>
+                
+                <div class="w-full max-w-[420px] aspect-square relative">
+                    <svg id="compass-svg" viewBox="-15 -15 230 230" class="w-full h-full">
+                        <!-- Flat background regions -->
+                        <polygon points="100,100 61.73,7.61 138.27,7.61" fill="currentColor" class="text-slate-50 dark:text-neutral-950/40" stroke="currentColor" class-stroke="text-slate-200" stroke-width="0.5"/>
+                        <polygon points="100,100 138.27,7.61 192.39,61.73" fill="currentColor" class="text-slate-100 dark:text-neutral-900/60" stroke="currentColor" stroke-width="0.5"/>
+                        <polygon points="100,100 192.39,61.73 192.39,138.27" fill="currentColor" class="text-slate-50 dark:text-neutral-950/40" stroke="currentColor" stroke-width="0.5"/>
+                        <polygon points="100,100 192.39,138.27 138.27,192.39" fill="currentColor" class="text-slate-100 dark:text-neutral-900/60" stroke="currentColor" stroke-width="0.5"/>
+                        <polygon points="100,100 138.27,192.39 61.73,192.39" fill="currentColor" class="text-slate-50 dark:text-neutral-950/40" stroke="currentColor" stroke-width="0.5"/>
+                        <polygon points="100,100 61.73,192.39 7.61,138.27" fill="currentColor" class="text-slate-100 dark:text-neutral-900/60" stroke="currentColor" stroke-width="0.5"/>
+                        <polygon points="100,100 7.61,138.27 7.61,61.73" fill="currentColor" class="text-slate-50 dark:text-neutral-950/40" stroke="currentColor" stroke-width="0.5"/>
+                        <polygon points="100,100 7.61,61.73 61.73,7.61" fill="currentColor" class="text-slate-100 dark:text-neutral-900/60" stroke="currentColor" stroke-width="0.5"/>
+
+                        <!-- Grid Scale Polygons -->
+                        <polygon points="100,25 153.03,46.97 175,100 153.03,153.03 100,175 46.97,153.03 25,100 46.97,46.97" fill="none" stroke="#94a3b8" stroke-width="0.4" stroke-dasharray="2,2"/>
+                        <polygon points="100,50 135.36,64.64 150,100 135.36,135.36 100,150 64.64,135.36 50,100 64.64,64.64" fill="none" stroke="#94a3b8" stroke-width="0.4" stroke-dasharray="2,2"/>
+                        
+                        <!-- Axis Lines -->
+                        <line x1="100" y1="0" x2="100" y2="200" stroke="#64748b" stroke-width="0.6"/>
+                        <line x1="0" y1="100" x2="200" y2="100" stroke="#64748b" stroke-width="0.6"/>
+                        <line x1="29.29" y1="29.29" x2="170.71" y2="170.71" stroke="#64748b" stroke-width="0.6"/>
+                        <line x1="29.29" y1="170.71" x2="170.71" y2="29.29" stroke="#64748b" stroke-width="0.6"/>
+
+                        <!-- User Polygon Shape -->
+                        <polygon id="svg-user-shape" points="100,100 100,100 100,100 100,100 100,100 100,100 100,100 100,100" class="user-polygon" fill="var(--color-accent)" fill-opacity="0.25" stroke="var(--color-accent)" stroke-width="1.5" stroke-linejoin="round"/>
+                        
+                        <g id="svg-points"></g>
+
+                        <!-- Labels -->
+                        <text x="100" y="-4" class="text-[5px] font-bold text-center fill-slate-700 dark:fill-neutral-300 uppercase" text-anchor="middle">EQUALITY</text>
+                        <text x="178" y="22" class="text-[5px] font-bold fill-slate-700 dark:fill-neutral-300 uppercase" text-anchor="middle">NATION</text>
+                        <text x="210" y="102" class="text-[5px] font-bold fill-slate-700 dark:fill-neutral-300 uppercase" text-anchor="middle">AUTHORITY</text>
+                        <text x="178" y="182" class="text-[5px] font-bold fill-slate-700 dark:fill-neutral-300 uppercase" text-anchor="middle">TRADITION</text>
+                        <text x="100" y="208" class="text-[5px] font-bold fill-slate-700 dark:fill-neutral-300 uppercase" text-anchor="middle">MARKETS</text>
+                        <text x="22" y="182" class="text-[5px] font-bold fill-slate-700 dark:fill-neutral-300 uppercase" text-anchor="middle">GLOBAL</text>
+                        <text x="-10" y="102" class="text-[5px] font-bold fill-slate-700 dark:fill-neutral-300 uppercase" text-anchor="middle">LIBERTY</text>
+                        <text x="22" y="22" class="text-[5px] font-bold fill-slate-700 dark:fill-neutral-300 uppercase" text-anchor="middle">PROGRESS</text>
+                    </svg>
+                </div>
+            </div>
+
+            <!-- Breakdown and Match -->
+            <div class="flex flex-col gap-6">
+                <div class="bg-white dark:bg-black border border-slate-200 dark:border-neutral-800 rounded-lg shadow-sm p-6">
+                    <span class="text-xs font-bold text-slate-400 uppercase tracking-widest block mb-1">Primary Archetype</span>
+                    <div id="match-name" class="text-2xl font-bold mb-2">Computing...</div>
+                    <p id="match-desc" class="text-slate-600 dark:text-neutral-400 text-sm leading-relaxed">Processing coordinates across vector space...</p>
+                </div>
+
+                <div class="bg-white dark:bg-black border border-slate-200 dark:border-neutral-800 rounded-lg shadow-sm p-6">
+                    <h3 class="text-sm font-bold text-slate-800 dark:text-white mb-4">Dimensional Breakdown</h3>
+                    <div class="space-y-4 text-xs font-semibold">
+                        <div>
+                            <div class="flex justify-between mb-1">
+                                <span class="text-slate-700 dark:text-neutral-300">Equality (<span id="val-equality">0</span>%)</span>
+                                <span class="text-slate-700 dark:text-neutral-300">Markets (<span id="val-markets">0</span>%)</span>
+                            </div>
+                            <div class="w-full bg-slate-100 dark:bg-neutral-950 rounded h-2 flex overflow-hidden">
+                                <div id="bar-equality" class="bg-slate-900 dark:bg-white h-2 transition-all"></div>
+                                <div id="bar-markets" class="bg-slate-300 dark:bg-neutral-700 h-2 transition-all"></div>
+                            </div>
+                        </div>
+                        <div>
+                            <div class="flex justify-between mb-1">
+                                <span class="text-slate-700 dark:text-neutral-300">Authority (<span id="val-authority">0</span>%)</span>
+                                <span class="text-slate-700 dark:text-neutral-300">Liberty (<span id="val-liberty">0</span>%)</span>
+                            </div>
+                            <div class="w-full bg-slate-100 dark:bg-neutral-950 rounded h-2 flex overflow-hidden">
+                                <div id="bar-authority" class="bg-slate-900 dark:bg-white h-2 transition-all"></div>
+                                <div id="bar-liberty" class="bg-slate-300 dark:bg-neutral-700 h-2 transition-all"></div>
+                            </div>
+                        </div>
+                        <div>
+                            <div class="flex justify-between mb-1">
+                                <span class="text-slate-700 dark:text-neutral-300">Tradition (<span id="val-tradition">0</span>%)</span>
+                                <span class="text-slate-700 dark:text-neutral-300">Progress (<span id="val-progress">0</span>%)</span>
+                            </div>
+                            <div class="w-full bg-slate-100 dark:bg-neutral-950 rounded h-2 flex overflow-hidden">
+                                <div id="bar-tradition" class="bg-slate-900 dark:bg-white h-2 transition-all"></div>
+                                <div id="bar-progress" class="bg-slate-300 dark:bg-neutral-700 h-2 transition-all"></div>
+                            </div>
+                        </div>
+                        <div>
+                            <div class="flex justify-between mb-1">
+                                <span class="text-slate-700 dark:text-neutral-300">Nation (<span id="val-nation">0</span>%)</span>
+                                <span class="text-slate-700 dark:text-neutral-300">Global (<span id="val-global">0</span>%)</span>
+                            </div>
+                            <div class="w-full bg-slate-100 dark:bg-neutral-950 rounded h-2 flex overflow-hidden">
+                                <div id="bar-nation" class="bg-slate-900 dark:bg-white h-2 transition-all"></div>
+                                <div id="bar-global" class="bg-slate-300 dark:bg-neutral-700 h-2 transition-all"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="text-xs text-slate-500 dark:text-neutral-400 px-1">Your saved results also appear on the homepage.</div>
+    </div>
+</main>
+
+<script>
+const parties = [
+    { name: "Progressive Democrat", desc: "Prioritizes systemic economic equality, rapid social progress, civil liberties, and international cooperation.", vector: { econ: 16, state: -8, cult: 18, diplo: 14 } },
+    { name: "Mainstream Democrat", desc: "Favors a mixed economy with a strong safety net, steady social progress, institutional order, and robust alliances.", vector: { econ: 8, state: 4, cult: 10, diplo: 10 } },
+    { name: "Centrist / Moderate", desc: "Balances free enterprise with regulation, and tradition with progressive reform, leaning toward pragmatic compromise.", vector: { econ: 0, state: 0, cult: 0, diplo: 0 } },
+    { name: "Mainstream Republican", desc: "Advocates for free market economics, traditional social values, strong institutional authority, and national sovereignty.", vector: { econ: -12, state: 8, cult: -12, diplo: -8 } },
+    { name: "Populist Right", desc: "Highly prioritizes national sovereignty, strict traditionalism, strong state authority, and protectionist economics.", vector: { econ: -4, state: 14, cult: -16, diplo: -18 } },
+    { name: "Libertarian", desc: "Champions maximum individual liberty, radically unfettered free markets, and a strict non-interventionist foreign policy.", vector: { econ: -18, state: -18, cult: 4, diplo: -12 } },
+    { name: "Democratic Socialist", desc: "Advocates for a publicly-owned economy, robust social justice, and working-class international solidarity.", vector: { econ: 20, state: 0, cult: 16, diplo: 12 } }
+];
+
+const questions = [
+    // ECONOMIC — contrasting claims, presented in a fixed order.
+    { text: "Stronger government rules for large corporations can reduce monopolies and protect workers.", easy: "Stronger rules for big companies can protect workers and reduce monopolies.", axis: "econ", weight: 1 },
+    { text: "Markets generally allocate resources more effectively when government direction is limited.", easy: "Markets usually work better when government direction is limited.", axis: "econ", weight: -1 },
+    { text: "Higher-income households carrying a larger share of the tax burden can reduce large wealth gaps.", easy: "Higher incomes paying more taxes can reduce large wealth gaps.", axis: "econ", weight: 1 },
+    { text: "Lower taxes and fewer business regulations generally encourage economic growth.", easy: "Lower taxes and fewer business rules generally help economic growth.", axis: "econ", weight: -1 },
+    { text: "Broad public access to essential services such as healthcare and primary education can improve basic security.", easy: "Broad public access to basic healthcare and education can improve security.", axis: "econ", weight: 1 },
+    { text: "People generally do better when income support comes from work and targeted programs instead of a universal basic income.", easy: "People generally do better with jobs and targeted help instead of a basic income for everyone.", axis: "econ", weight: -1 },
+    { text: "Public ownership of essential utilities can provide reliable service at a reasonable cost.", easy: "Public utilities can provide reliable service at a reasonable cost.", axis: "econ", weight: 1 },
+    { text: "Private competition in utilities can improve service and reduce costs.", easy: "Private competition can improve utility service and lower costs.", axis: "econ", weight: -1 },
+    { text: "Labor unions benefit workers when they have strong legal protections in negotiations.", easy: "Strong union protections can help workers negotiate.", axis: "econ", weight: 1 },
+    { text: "Employers and employees generally benefit when working conditions are negotiated with limited government involvement.", easy: "Workers and employers generally benefit from less government involvement in workplace negotiations.", axis: "econ", weight: -1 },
+
+    // STATE — contrasting claims, presented in a fixed order.
+    { text: "Expanded surveillance powers can improve public safety when courts and laws provide meaningful oversight.", easy: "More surveillance can improve safety when courts and laws oversee it.", axis: "state", weight: 1 },
+    { text: "People generally have better lives when they can make personal choices without unnecessary government interference.", easy: "People generally do better when they can make personal choices freely.", axis: "state", weight: -1 },
+    { text: "Clear hierarchies and strong respect for institutions help maintain social order.", easy: "Clear hierarchies and respect for institutions can help keep order.", axis: "state", weight: 1 },
+    { text: "Adults generally benefit when recreational substance use is handled outside the criminal justice system.", easy: "Adults generally benefit when recreational substance use is not handled as a crime.", axis: "state", weight: -1 },
+    { text: "Stricter laws and stronger penalties can improve public safety by discouraging crime.", easy: "Stricter laws and stronger penalties can improve public safety.", axis: "state", weight: 1 },
+    { text: "Media freedom generally protects society better than government censorship of lawful speech.", easy: "Free media generally protects society better than government censorship.", axis: "state", weight: -1 },
+    { text: "Releasing classified information can justify legal consequences when the release creates serious public danger.", easy: "Releasing dangerous classified information can justify legal consequences.", axis: "state", weight: 1 },
+    { text: "National service works best as a voluntary civic choice rather than a universal legal requirement.", easy: "National service works best when it is voluntary.", axis: "state", weight: -1 },
+    { text: "Firearm ownership works best under laws that balance self-defense with public safety.", easy: "Firearm ownership works best with laws balancing self-defense and public safety.", axis: "state", weight: 1 },
+    { text: "Emergency executive powers are safer when they remain limited by law, courts, and clear time limits.", easy: "Emergency powers are safer when laws, courts, and time limits restrict them.", axis: "state", weight: -1 },
+
+    // CULTURE — contrasting claims, presented in a fixed order.
+    { text: "Society can benefit from accepting changing family structures and gender roles.", easy: "Society can benefit from accepting changing family and gender roles.", axis: "cult", weight: 1 },
+    { text: "Traditional religious and moral values can provide useful guidance for public life.", easy: "Traditional religious and moral values can be useful in public life.", axis: "cult", weight: -1 },
+    { text: "Policies that address documented historical inequalities can expand equal opportunity.", easy: "Policies addressing past inequalities can expand equal opportunity.", axis: "cult", weight: 1 },
+    { text: "Schools generally benefit from emphasizing classical subjects and established academic foundations.", easy: "Schools generally benefit from focusing on classic subjects and basic academic skills.", axis: "cult", weight: -1 },
+    { text: "Cultural and background diversity can strengthen a nation when everyone has equal civic rights.", easy: "Cultural diversity can strengthen a country when everyone has equal rights.", axis: "cult", weight: 1 },
+    { text: "Keeping historical monuments while adding context can preserve history without endorsing everything a figure did.", easy: "Keeping historic monuments with added context can preserve history without praising everything about the figure.", axis: "cult", weight: -1 },
+    { text: "Religious institutions can make a useful contribution to public moral debate without controlling government.", easy: "Religious groups can contribute to moral debate without controlling government.", axis: "cult", weight: 1 },
+    { text: "People generally communicate better when everyday language is not heavily policed by institutions.", easy: "People generally communicate better when institutions do not heavily police everyday language.", axis: "cult", weight: -1 },
+    { text: "Traditional family structures can be an important foundation for stable communities.", easy: "Traditional families can be an important foundation for stable communities.", axis: "cult", weight: -1 },
+    { text: "Indigenous communities deserve meaningful remedies for documented historical harms.", easy: "Indigenous communities deserve meaningful remedies for documented past harms.", axis: "cult", weight: 1 },
+
+    // DIPLOMACY — contrasting claims, presented in a fixed order.
+    { text: "International organizations can coordinate cross-border problems more effectively when countries give them stronger authority.", easy: "Global organizations can handle cross-border problems better with stronger authority.", axis: "diplo", weight: 1 },
+    { text: "A government's first responsibility is protecting the welfare and interests of its own citizens.", easy: "A government’s first responsibility is protecting its own citizens.", axis: "diplo", weight: -1 },
+    { text: "Lower trade barriers and easier international movement can increase economic cooperation and prosperity.", easy: "Easier international trade and movement can increase prosperity.", axis: "diplo", weight: 1 },
+    { text: "Protecting important domestic industries from foreign competition can defend national economic interests.", easy: "Protecting important local industries can defend national economic interests.", axis: "diplo", weight: -1 },
+    { text: "Binding international agreements can help countries respond to major problems that cross borders.", easy: "Binding global agreements can help countries handle major cross-border problems.", axis: "diplo", weight: 1 },
+    { text: "Immigration and asylum levels work best when national capacity and security are major factors.", easy: "Immigration works best when a country’s capacity and security are major factors.", axis: "diplo", weight: -1 },
+    { text: "Foreign aid can advance humanitarian goals and long-term international stability.", easy: "Foreign aid can help people and improve long-term international stability.", axis: "diplo", weight: 1 },
+    { text: "Foreign aid is less useful when domestic needs are more urgent or when the aid is unlikely to work.", easy: "Foreign aid is less useful when domestic needs are more urgent or aid is unlikely to work.", axis: "diplo", weight: -1 },
+    { text: "International military and economic alliances can improve stability when their commitments are clearly defined.", easy: "International alliances can improve stability when their commitments are clear.", axis: "diplo", weight: 1 },
+    { text: "Countries generally benefit when they retain broad control over their own energy and industrial policy.", easy: "Countries generally benefit from keeping control over their own energy and industry.", axis: "diplo", weight: -1 }
+];
+
+let currentQuestions = [];
+let currentIndex = 0;
+let scores = { econ: 0, state: 0, cult: 0, diplo: 0 };
+const MAX_AXIS_SCORE = 20;
+
+function toggleModal(id) {
+    const modal = document.getElementById(id);
+    if (modal.classList.contains('hidden')) {
+        modal.classList.remove('hidden');
+        setTimeout(() => {
+            modal.classList.remove('opacity-0');
+            modal.querySelector('div').classList.remove('scale-95');
+        }, 10);
+    } else {
+        modal.classList.add('opacity-0');
+        modal.querySelector('div').classList.add('scale-95');
+        setTimeout(() => modal.classList.add('hidden'), 200);
+    }
+}
+
+function toggleDarkMode() {
+    const html = document.documentElement;
+    const btn = document.getElementById('dark-mode-btn');
+    if (html.classList.contains('dark')) {
+        html.classList.remove('dark');
+        btn.innerText = 'Enable Dark';
+        localStorage.setItem('politicalOctagonDarkMode', '0');
+    } else {
+        html.classList.add('dark');
+        btn.innerText = 'Disable Dark';
+        localStorage.setItem('politicalOctagonDarkMode', '1');
+    }
+}
+
+function toggleReaderMode() {
+    const body = document.body;
+    const btn = document.getElementById('reader-mode-btn');
+    if (body.classList.contains('reader-mode')) {
+        body.classList.remove('reader-mode');
+        btn.innerText = 'Enable Reader';
+        updateHomepageReaderButton();
+    } else {
+        body.classList.add('reader-mode');
+        btn.innerText = 'Disable Reader';
+        updateHomepageReaderButton();
+    }
+    if (currentQuestions.length) renderQuestion();
+}
+
+function setAccentColor(main, hover, light) {
+    document.documentElement.style.setProperty('--color-accent', main);
+    document.documentElement.style.setProperty('--color-accent-hover', hover);
+    document.documentElement.style.setProperty('--color-accent-light', light);
+}
+
+function shuffleArray(array) {
+    for (let i = array.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [array[i], array[j]] = [array[j], array[i]];
+    }
+}
+
+function startAssessment() {
+    scores = { econ: 0, state: 0, cult: 0, diplo: 0 };
+    currentIndex = 0;
+    currentQuestions = [...questions];
+
+    document.getElementById('intro-screen').classList.add('hidden');
+    document.getElementById('results-screen').classList.add('hidden');
+    document.getElementById('quiz-screen').classList.remove('hidden');
+    renderQuestion();
+}
+
+function renderQuestion() {
+    const q = currentQuestions[currentIndex];
+    const qText = document.getElementById('question-text');
+    
+    qText.classList.remove('fade-in');
+    void qText.offsetWidth;
+    qText.classList.add('fade-in');
+    
+    const easyMode = document.body.classList.contains('reader-mode');
+    qText.innerText = `"${easyMode && q.easy ? q.easy : q.text}"`;
+    document.getElementById('question-counter').innerText = `${String(currentIndex + 1).padStart(2, '0')} / 40`;
+    document.getElementById('progress-bar').style.width = `${(currentIndex / 40) * 100}%`;
+    
+    const axesMap = { econ: "Economic", state: "State", cult: "Culture", diplo: "Diplomacy" };
+    document.getElementById('axis-indicator').innerText = axesMap[q.axis];
+}
+
+function handleAnswer(value) {
+    const q = currentQuestions[currentIndex];
+    scores[q.axis] += (value * q.weight);
+    currentIndex++;
+
+    if (currentIndex < 40) {
+        renderQuestion();
+    } else {
+        document.getElementById('progress-bar').style.width = '100%';
+        setTimeout(showResults, 300);
+    }
+}
+
+function showResults() {
+    document.getElementById('quiz-screen').classList.add('hidden');
+    document.getElementById('results-screen').classList.remove('hidden');
+
+    const pEcon = 50 + (scores.econ / MAX_AXIS_SCORE) * 50;
+    const pState = 50 + (scores.state / MAX_AXIS_SCORE) * 50;
+    const pCult = 50 + (scores.cult / MAX_AXIS_SCORE) * 50;
+    const pDiplo = 50 + (scores.diplo / MAX_AXIS_SCORE) * 50;
+
+    const nodes = {
+        equality: pEcon,
+        markets: 100 - pEcon,
+        authority: pState,
+        liberty: 100 - pState,
+        progress: pCult,
+        tradition: 100 - pCult,
+        global: pDiplo,
+        nation: 100 - pDiplo
+    };
+
+    updateBars(nodes);
+    drawSvgOctagon(nodes);
+    calculatePartyMatch();
+    saveResult(nodes);
+    renderResultHistory();
+}
+
+function updateBars(nodes) {
+    const map = ['equality', 'markets', 'authority', 'liberty', 'progress', 'tradition', 'global', 'nation'];
+    map.forEach(key => {
+        document.getElementById(`val-${key}`).innerText = Math.round(nodes[key]);
+        document.getElementById(`bar-${key}`).style.width = `${nodes[key]}%`;
+    });
+}
+
+function getSvgCoord(percentage, angleDeg) {
+    const r = (percentage / 100) * 100; 
+    const rad = angleDeg * (Math.PI / 180);
+    const x = 100 + (r * Math.sin(rad));
+    const y = 100 - (r * Math.cos(rad));
+    return { x, y };
+}
+
+function drawSvgOctagon(nodes) {
+    const pts = [
+        getSvgCoord(nodes.equality, 0),
+        getSvgCoord(nodes.nation, 45),
+        getSvgCoord(nodes.authority, 90),
+        getSvgCoord(nodes.tradition, 135),
+        getSvgCoord(nodes.markets, 180),
+        getSvgCoord(nodes.global, 225),
+        getSvgCoord(nodes.liberty, 270),
+        getSvgCoord(nodes.progress, 315)
+    ];
+
+    const polygonString = pts.map(p => `${p.x},${p.y}`).join(' ');
+    
+    setTimeout(() => {
+        document.getElementById('svg-user-shape').setAttribute('points', polygonString);
+        
+        const ptsContainer = document.getElementById('svg-points');
+        ptsContainer.innerHTML = '';
+        pts.forEach(p => {
+            const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+            circle.setAttribute('cx', p.x);
+            circle.setAttribute('cy', p.y);
+            circle.setAttribute('r', '2');
+            circle.setAttribute('fill', 'var(--color-accent)');
+            circle.setAttribute('stroke', '#ffffff');
+            circle.setAttribute('stroke-width', '0.5');
+            ptsContainer.appendChild(circle);
+        });
+    }, 100);
+}
+
+function calculatePartyMatch() {
+    let bestMatch = parties[0];
+    let minDistance = Infinity;
+    
+    parties.forEach(party => {
+        const dist = Math.sqrt(
+            Math.pow(scores.econ - party.vector.econ, 2) +
+            Math.pow(scores.state - party.vector.state, 2) +
+            Math.pow(scores.cult - party.vector.cult, 2) +
+            Math.pow(scores.diplo - party.vector.diplo, 2)
+        );
+        if (dist < minDistance) {
+            minDistance = dist;
+            bestMatch = party;
+        }
+    });
+    
+    setTimeout(() => {
+        document.getElementById('match-name').innerText = bestMatch.name;
+        document.getElementById('match-desc').innerText = bestMatch.desc;
+    }, 400);
+}
+
+
+const RESULT_HISTORY_KEY = 'politicalOctagonResultHistory';
+
+function getResultHistory() {
+    try {
+        const parsed = JSON.parse(localStorage.getItem(RESULT_HISTORY_KEY) || '[]');
+        return Array.isArray(parsed) ? parsed : [];
+    } catch (error) {
+        return [];
+    }
+}
+
+function saveResult(nodes) {
+    const history = getResultHistory();
+    const entry = {
+        date: new Date().toISOString(),
+        scores: Object.fromEntries(Object.entries(nodes).map(([key, value]) => [key, Math.round(value)]))
+    };
+    history.unshift(entry);
+    localStorage.setItem(RESULT_HISTORY_KEY, JSON.stringify(history.slice(0, 30)));
+}
+
+function resultHistoryMarkup(history) {
+    if (!history.length) {
+        return '<p class="text-xs text-slate-400 dark:text-neutral-500">No previous results yet.</p>';
+    }
+    return history.map((entry, index) => {
+        const date = new Date(entry.date);
+        const when = Number.isNaN(date.getTime()) ? 'Unknown date' : date.toLocaleString();
+        const s = entry.scores || {};
+        return `
+        <div class="history-card">
+            <div class="flex justify-between items-start gap-3">
+                <div class="text-xs font-semibold">${when}</div>
+                <button onclick="deleteResult(${index})" class="text-xs text-slate-400 hover:text-slate-900 dark:hover:text-white">Delete</button>
+            </div>
+            <div class="grid grid-cols-4 gap-2 mt-3 text-[11px] text-slate-500 dark:text-neutral-400">
+                <span>Eq ${s.equality ?? 50}</span><span>Mkt ${s.markets ?? 50}</span>
+                <span>Auth ${s.authority ?? 50}</span><span>Lib ${s.liberty ?? 50}</span>
+                <span>Prog ${s.progress ?? 50}</span><span>Trad ${s.tradition ?? 50}</span>
+                <span>Glob ${s.global ?? 50}</span><span>Nat ${s.nation ?? 50}</span>
+            </div>
+        </div>`;
+    }).join('');
+}
+
+function renderResultHistory() {
+    const history = getResultHistory();
+    const home = document.getElementById('homepage-result-history');
+    if (home) home.innerHTML = resultHistoryMarkup(history);
+}
+
+function deleteResult(index) {
+    const history = getResultHistory();
+    history.splice(index, 1);
+    localStorage.setItem(RESULT_HISTORY_KEY, JSON.stringify(history));
+    renderResultHistory();
+}
+
+function clearResultHistory() {
+    localStorage.removeItem(RESULT_HISTORY_KEY);
+    renderResultHistory();
+}
+
+function updateHomepageReaderButton() {
+    const btn = document.getElementById('home-reader-btn');
+    if (!btn) return;
+    const active = document.body.classList.contains('reader-mode');
+    btn.innerText = active ? 'Disable' : 'Enable';
+}
+
+function downloadCompass() {
+    const svgElement = document.getElementById('compass-svg');
+    const svgString = new XMLSerializer().serializeToString(svgElement);
+    const blob = new Blob([svgString], { type: 'image/svg+xml;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = 'political-octagon-compass.svg';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+    if (localStorage.getItem('politicalOctagonDarkMode') === '1') {
+        document.documentElement.classList.add('dark');
+        const btn = document.getElementById('dark-mode-btn');
+        if (btn) btn.innerText = 'Disable Dark';
+    }
+    renderResultHistory();
+    updateHomepageReaderButton();
+});
+
+function resetAssessment() {
+    document.getElementById('results-screen').classList.add('hidden');
+    document.getElementById('intro-screen').classList.remove('hidden');
+    document.getElementById('svg-user-shape').setAttribute('points', '100,100 100,100 100,100 100,100 100,100 100,100 100,100 100,100');
+    document.getElementById('svg-points').innerHTML = '';
+}
+</script>
+</body>
+</html>
